@@ -43,8 +43,10 @@ public class Application {
     @PostMapping("/posts") // Создание страницы
     public ResponseEntity<Post> create(@RequestBody Post post) {
         posts.add(post);
+        URI location = URI.create("/posts");
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                //.status(HttpStatus.CREATED)
+                .created(location)
                 .body(post);
     }
 
@@ -62,16 +64,15 @@ public class Application {
         var maybePost = posts.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
+        var status = HttpStatus.NO_CONTENT;
         if (maybePost.isPresent()) {
             var post = maybePost.get();
             post.setId(data.getId());
             post.setTitle(data.getTitle());
             post.setBody(data.getBody());
-            return ResponseEntity.ok()
-                    .body(data);
+            status = HttpStatus.OK;
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(null);
+        return ResponseEntity.status(status).body(data);
     }
 
     // END
