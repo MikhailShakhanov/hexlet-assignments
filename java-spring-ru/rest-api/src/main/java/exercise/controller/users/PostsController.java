@@ -14,31 +14,19 @@ import exercise.Data;
 @RequestMapping("/api")
 public  class PostsController {
     private List<Post> posts = Data.getPosts();
-    @GetMapping("/users/{id}/posts") // Список страниц
-    public ResponseEntity<List<Post>> showUserPosts(@PathVariable String id
-            //,@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "1") Integer page
-    ) {
-        var result = posts.stream()
-                .filter(p -> String.valueOf(p.getUserId()).equals(id))
-                //.skip((long) (page - 1) * limit)
-                //.limit(limit)
-                .toList();
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .header("X-Total-Count", String.valueOf(posts.size()))
-                .body(result);
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/users/{userId}/posts")
+    public Post create(@PathVariable Integer userId, @RequestBody Post post) {
+        post.setUserId(userId);
+        posts.add(post);
+        return post;
     }
 
-    @PostMapping("/users/{id}/posts") // Создание страницы
-    public ResponseEntity<Post> create(@PathVariable String id, @RequestBody Post post) {
-        post.setUserId(Integer.parseInt(id));
-        posts.add(post);
-        URI location = URI.create("/users/"+id+"/posts");
-        return ResponseEntity
-                //.status(HttpStatus.CREATED)
-                .created(location)
-                .body(post);
+    @GetMapping("/users/{userId}/posts")
+    public List<Post> show(@PathVariable Integer userId) {
+        return posts.stream()
+                .filter(p -> p.getUserId() == userId).toList();
     }
 }
 // END
