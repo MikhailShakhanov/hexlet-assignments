@@ -36,14 +36,13 @@ public class PeopleController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Person> showPersons() {
-        return personRepository.findAll().stream().toList();
+        return personRepository.findAll();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Person savePerson(@RequestBody Person person) {
-        personRepository.save(person);
-        return person;
+        return personRepository.save(person);
     }
 
     @DeleteMapping(path = "/{id}")
