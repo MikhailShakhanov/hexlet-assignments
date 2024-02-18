@@ -19,10 +19,10 @@ public class ProductsController {
     private ProductRepository productRepository;
 
     // BEGIN
-    @GetMapping(path = "")
+    @GetMapping(path = "/my")
     @ResponseStatus(HttpStatus.OK)
     public List<Product> showProductsInPriceRange(@RequestParam(required = false) Integer min, @RequestParam(required = false) Integer max) {
-        var sort = Sort.by(Sort.Direction.ASC, "price");
+        var sort = Sort.by(Sort.Order.asc("price"));
         if (min != null && max != null) {
             return productRepository.findAllProductsInPriceRange(min, max, sort).stream().toList();
         } else if (min == null && max != null) {
@@ -31,6 +31,15 @@ public class ProductsController {
             return productRepository.findByPriceGreaterThanEqualOrderByPriceAsc(min).stream().toList();
         }
         return productRepository.findAll(sort).stream().toList();
+    }
+
+    @GetMapping(path = "")
+    public List<Product> index(
+            @RequestParam(defaultValue = Integer.MIN_VALUE + "") Integer min,
+            @RequestParam(defaultValue = Integer.MAX_VALUE + "") Integer max) {
+
+        Sort sort = Sort.by(Sort.Order.asc("price"));
+        return productRepository.findByPriceBetween(min, max, sort);
     }
     // END
 
