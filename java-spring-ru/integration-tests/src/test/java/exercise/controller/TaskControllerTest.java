@@ -74,34 +74,38 @@ class ApplicationTest {
     // BEGIN
     @Test
     public void testShow() throws Exception {
+
         var task = generateTask();
         taskRepository.save(task);
 
-        var result = mockMvc.perform(get("/tasks/"+task.getId()))
+        var request = get("/tasks/{id}", task.getId());
+        var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
         var body = result.getResponse().getContentAsString();
-        assertThatJson(body).isObject();
-        assertThatJson(body).isObject().containsEntry("title",task.getTitle());
-        assertThatJson(body).isObject().containsEntry("description",task.getDescription());
 
+        assertThatJson(body).and(
+                v -> v.node("title").isEqualTo(task.getTitle()),
+                v -> v.node("description").isEqualTo(task.getDescription())
+        );
     }
 
     @Test
     public void testCreate() throws Exception {
-        var task = generateTask();
-        taskRepository.save(task);
+        var data = generateTask();
 
-//        var data = new HashMap<>();
-//        data.put("firstName", "Mike");
+        var request = post("/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(data));
 
-        var result = mockMvc.perform(get("/tasks/"+task.getId()))
-                .andExpect(status().isOk())
-                .andReturn();
-        var body = result.getResponse().getContentAsString();
-        assertThatJson(body).isObject();
-        assertThatJson(body).isObject().containsEntry("title",task.getTitle());
-        assertThatJson(body).isObject().containsEntry("description",task.getDescription());
+        mockMvc.perform(request)
+                .andExpect(status().isCreated());
+
+        var task = taskRepository.findByTitle(data.getTitle()).get();
+
+        assertThat(task).isNotNull();
+        assertThat(task.getTitle()).isEqualTo(data.getTitle());
+        assertThat(task.getDescription()).isEqualTo(data.getDescription());
     }
 
     @Test
@@ -109,33 +113,34 @@ class ApplicationTest {
         var task = generateTask();
         taskRepository.save(task);
 
-//        var data = new HashMap<>();
-//        data.put("firstName", "Mike");
+        var data = new HashMap<>();
+        data.put("title", "new title");
 
-        var result = mockMvc.perform(get("/tasks/"+task.getId()))
-                .andExpect(status().isOk())
-                .andReturn();
-        var body = result.getResponse().getContentAsString();
-        assertThatJson(body).isObject();
-        assertThatJson(body).isObject().containsEntry("title",task.getTitle());
-        assertThatJson(body).isObject().containsEntry("description",task.getDescription());
+        var request = put("/tasks/{id}", task.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(data));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+
+        task = taskRepository.findById(task.getId()).get();
+
+        assertThat(task.getTitle()).isEqualTo(data.get("title"));
     }
 
     @Test
-    public void testDelete() throws  Exception{
+    public void testDelete() throws Exception {
+
         var task = generateTask();
         taskRepository.save(task);
 
-//        var data = new HashMap<>();
-//        data.put("firstName", "Mike");
+        var request = delete("/tasks/{id}", task.getId());
 
-        var result = mockMvc.perform(get("/tasks/"+task.getId()))
-                .andExpect(status().isOk())
-                .andReturn();
-        var body = result.getResponse().getContentAsString();
-        assertThatJson(body).isObject();
-        assertThatJson(body).isObject().containsEntry("title",task.getTitle());
-        assertThatJson(body).isObject().containsEntry("description",task.getDescription());
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+
+        task = taskRepository.findById(task.getId()).orElse(null);
+        assertThat(task).isNull();
     }
     // END
 }
