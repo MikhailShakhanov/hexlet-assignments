@@ -136,8 +136,7 @@ class ApplicationTest {
 
         var request = delete("/tasks/{id}", task.getId());
 
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
+        mockMvc.perform(request).andExpect(status().isOk());
 
         task = taskRepository.findById(task.getId()).orElse(null);
         assertThat(task).isNull();
