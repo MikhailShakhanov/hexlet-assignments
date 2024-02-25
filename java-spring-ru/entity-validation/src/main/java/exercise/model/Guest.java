@@ -35,8 +35,8 @@ public class Guest {
     private String name;
     @Email
     private String email;
-    @NotBlank
-    @Size(min = 11, max = 13)
+    @Column(unique = true)
+    @Pattern(regexp = "\\+[0-9]{11,13}")
     private String phoneNumber;
     @Column(length = 4)
     private String clubCard;
