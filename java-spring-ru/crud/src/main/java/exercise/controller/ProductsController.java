@@ -5,10 +5,8 @@ import java.util.List;
 import exercise.dto.ProductCreateDTO;
 import exercise.dto.ProductDTO;
 import exercise.dto.ProductUpdateDTO;
-import exercise.exception.BadRequestException;
 import exercise.mapper.ProductMapper;
 import exercise.repository.CategoryRepository;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,14 +61,18 @@ public class ProductsController {
 
     @PostMapping(path = "")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductDTO createProduct(@RequestBody @Valid ProductCreateDTO productCreateDTO) {
+    public ProductDTO createProduct(@Valid @RequestBody ProductCreateDTO productCreateDTO) {
+//        var product = productMapper.map(productCreateDTO);
+//        var category = categoryRepository.findById(productCreateDTO.getCategoryId())
+//                .orElseThrow(() -> new BadRequestException("Category not found"));
+//
+//        product.setCategory(category);
+//        productRepository.save(product);
+//        return productMapper.map(product);
         var product = productMapper.map(productCreateDTO);
-        var category = categoryRepository.findById(productCreateDTO.getCategoryId())
-                .orElseThrow(() -> new BadRequestException("Category not found"));
-
-        product.setCategory(category);
         productRepository.save(product);
-        return productMapper.map(product);
+        var productDto = productMapper.map(product);
+        return productDto;
     }
 
     @PutMapping(path = "/{id}")
