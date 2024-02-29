@@ -1,0 +1,7 @@
+# BEGIN
+spring:
+  datasource:
+    url: jdbc:h2:dev
+    username: SA
+    password: password
+# END
